@@ -13,7 +13,7 @@ wall=.5; //.4 is typical
 
 //#of 'shells' or 'perimeters'
 inner_shells=2; //This multiplid by 'wall' is the total thickness of internal walls
-outer_shells=2; //the width of outer walls
+outer_shells=-10; //the width of outer walls
 
 //depth of the 'floor' (distance between the bottom of the well and the bottom of the model
 //setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
@@ -33,8 +33,8 @@ chamfer=1.5;
 draft=1.75;
 
 //shape of the bottom of the well (a sphere is scaled to these proportions. Largest effect will be seen by reducing zwell to flatten the bottom out
-xWell=.75;
-yWell=.75;
+xWell=1;
+yWell=.9;
 zWell=.75;
 
 //find the offset from top/bottom based on the draft angle.
@@ -91,7 +91,7 @@ module cavity() {
             translate([(.5*(col_size-wall*inner_shells)-corner)*x,(.5*(row_size-wall*inner_shells)-corner)*y, 0]) {
                 translate([0,0,-.5]) linear_extrude(.6) circle(r=corner);
         } } }
-        translate([0,0,-1*(depth-floor)+(depth-floor)*zWell*.5]) scale([col_size*yWell, row_size*xWell, (depth-floor)*zWell])#sphere(d=1);
+        translate([0,0,-1*(depth-floor)+(depth-floor)*zWell*.5]) scale([col_size*yWell, row_size*xWell, (depth-floor)*zWell])sphere(d=1);
     }
 }
 
@@ -100,7 +100,7 @@ module corners() {
     rad=18;
     excursion = 4;
     for (x = [-1,1]) { for (y = [-1,1]) {
-    #translate([x*(xoff+extra),y*(yoff+extra),rad-excursion]) sphere(r=rad, $fn=30);
+    translate([x*(xoff+extra),y*(yoff+extra),rad-excursion]) sphere(r=rad, $fn=30);
     }}
 }
 module box() {
