@@ -1,0 +1,115 @@
+$fn=15;
+//outside dimenstions
+
+//depth=38; //constant for all sizes
+//using shorter height to clear registration tabs
+depth=35; //constant for all sizes
+
+//"Small Bin" (internal dimensions)
+width=50; //x-axis
+height=35; //y-axis
+
+//wallThickness (set to match your slicer settings)
+wall=.5; //.4 is typical
+
+//#of 'shells' or 'perimeters'
+inner_shells=3; //This multiplid by 'wall' is the total thickness of internal walls
+outer_shells=1; //the width of outer walls
+
+//depth of the 'floor' (distance between the bottom of the well and the bottom of the model
+//setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
+floor=1;
+
+//radius of 'interior' corners
+corner=1.5;
+
+//Number of cavities
+cols=2; //x axis (width)
+rows=2; //y axis (height)
+
+//chamfer of outer edges (radius of the corners)
+chamfer=1.5;
+
+//draft angle of the inside of the box (degrees) Adjust if insert doesn't sit snugly in bin
+draft=1.75;
+
+//shape of the bottom of the well (a sphere is scaled to these proportions. Largest effect will be seen by reducing zwell to flatten the bottom out
+xWell=.75;
+yWell=.75;
+zWell=.75;
+
+//find the offset from top/bottom based on the draft angle.
+function draft_off(d=draft) = height/(1/tan(d));
+
+//we will model the bulk centered around the origin, so calculate centerline of sphere used for outer 'hull()' operation
+xoff=.5*width-chamfer;
+yoff=.5*height-chamfer;
+
+//The main body that will have cavities difference()-ed out of it
+module bulk() {
+    hull() {
+        for(x = [-1,1]) {
+            for(y = [-1,1]) {
+                //for each quadrant
+                for(z = [0,1]) {
+                    //and top/bottom
+                    translate([xoff*x-draft*z*x,yoff*y-draft*z*y, chamfer*z-depth*z]) {
+                        if(z == 0) { //top is done with shallow circles so it is flat
+                            translate([0,0,-.5]) linear_extrude(.5) circle(r=chamfer);
+                        } else {
+                            sphere(r=chamfer);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//helper to do some math
+function min_max(n) = (n <= 1 ? 0 : (n-1) / 2);
+
+//distance between centers of cavities (if more than 1)
+row_size = (height-wall*outer_shells)/rows + (min_max(rows) == 0 ? 1: min_max(rows))*wall*inner_shells; //y-axis
+col_size = (width-wall*outer_shells)/cols + (min_max(cols) == 0 ? 1: min_max(cols))*wall*inner_shells; //x-axis
+
+module cavities() {
+    row_minmax = min_max(rows);
+    col_minmax = min_max(cols);
+
+    for (x = [col_minmax*-1:1:col_minmax]) {
+        for( y = [row_minmax*-1:1:row_minmax]) {
+            translate([x*col_size,y*row_size]) {
+                cavity();
+            }
+        }
+    }
+}
+
+module cavity() {
+    hull() {
+        for (x = [-1,1]) { for (y = [-1,1]) {
+            translate([(.5*(col_size-wall*inner_shells)-corner)*x,(.5*(row_size-wall*inner_shells)-corner)*y, 0]) {
+                translate([0,0,-.5]) linear_extrude(.6) circle(r=corner);
+        } } }
+        translate([0,0,-1*(depth-floor)+(depth-floor)*zWell*.5]) scale([col_size*yWell, row_size*xWell, (depth-floor)*zWell])#sphere(d=1);
+    }
+}
+
+module box() {
+    difference() {
+        bulk();
+        cavities();
+    }
+}
+
+box();
+
+//see a cross-section
+//intersection() {
+//box();
+//translate([0,-.5*row_size,-100])cube([500,500,500]);
+//}
+
+//reference cube for size comparison
+//translate([0,0,depth*.6]) cube([width, height, depth], center=true);
