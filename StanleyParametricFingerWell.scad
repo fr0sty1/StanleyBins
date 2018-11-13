@@ -1,9 +1,8 @@
 $fn=15;
 //outside dimenstions
 
-//depth=38; //constant for all sizes
+depth=39; //constant for all sizes
 //using shorter height to clear registration tabs
-depth=35; //constant for all sizes
 
 //"Small Bin" (internal dimensions)
 width=50; //x-axis
@@ -13,12 +12,12 @@ height=35; //y-axis
 wall=.5; //.4 is typical
 
 //#of 'shells' or 'perimeters'
-inner_shells=3; //This multiplid by 'wall' is the total thickness of internal walls
-outer_shells=1; //the width of outer walls
+inner_shells=2; //This multiplid by 'wall' is the total thickness of internal walls
+outer_shells=2; //the width of outer walls
 
 //depth of the 'floor' (distance between the bottom of the well and the bottom of the model
 //setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
-floor=1;
+floor=15;
 
 //radius of 'interior' corners
 corner=1.5;
@@ -96,10 +95,19 @@ module cavity() {
     }
 }
 
+module corners() {
+    extra=4; //how far past the corner to center the spheres
+    rad=18;
+    excursion = 4;
+    for (x = [-1,1]) { for (y = [-1,1]) {
+    #translate([x*(xoff+extra),y*(yoff+extra),rad-excursion]) sphere(r=rad, $fn=30);
+    }}
+}
 module box() {
     difference() {
         bulk();
         cavities();
+        corners();
     }
 }
 
