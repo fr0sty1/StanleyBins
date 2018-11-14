@@ -5,7 +5,7 @@ depth=39; //constant for all sizes
 //using shorter height to clear registration tabs
 
 //"Small Bin" (internal dimensions)
-width=50; //x-axis
+width=51; //x-axis
 height=35; //y-axis
 
 //wallThickness (set to match your slicer settings)
@@ -13,18 +13,18 @@ wall=.5; //.4 is typical
 
 //#of 'shells' or 'perimeters'
 inner_shells=2; //This multiplid by 'wall' is the total thickness of internal walls
-outer_shells=-10; //the width of outer walls
+outer_shells=-7; //the width of outer walls
 
 //depth of the 'floor' (distance between the bottom of the well and the bottom of the model
 //setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
-floor=15;
+floor=-3;
 
 //radius of 'interior' corners
 corner=1.5;
 
 //Number of cavities
-cols=2; //x axis (width)
-rows=2; //y axis (height)
+cols=1; //x axis (width)
+rows=1; //y axis (height)
 
 //chamfer of outer edges (radius of the corners)
 chamfer=1.5;
