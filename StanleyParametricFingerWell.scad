@@ -6,18 +6,18 @@ depth=39; //constant for all sizes
 
 //"Small Bin" (internal dimensions)
 width=51; //x-axis
-height=35; //y-axis
+height=36; //y-axis
 
 //wallThickness (set to match your slicer settings)
 wall=.5; //.4 is typical
 
 //#of 'shells' or 'perimeters'
 inner_shells=2; //This multiplid by 'wall' is the total thickness of internal walls
-outer_shells=-7; //the width of outer walls
+outer_shells=-25; //the width of outer walls
 
 //depth of the 'floor' (distance between the bottom of the well and the bottom of the model
 //setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
-floor=-3;
+floor=-2;
 
 //radius of 'interior' corners
 corner=1.5;
@@ -33,9 +33,9 @@ chamfer=1.5;
 draft=1.75;
 
 //shape of the bottom of the well (a sphere is scaled to these proportions. Largest effect will be seen by reducing zwell to flatten the bottom out
-xWell=1;
-yWell=.9;
-zWell=.75;
+xWell=.8;
+yWell=.8;
+zWell=.65;
 
 //find the offset from top/bottom based on the draft angle.
 function draft_off(d=draft) = height/(1/tan(d));
@@ -112,8 +112,10 @@ module box() {
     }
 }
 
-box();
-
+difference() {
+    box();
+    cube([200,200,(depth-18)*2],center=true);
+}
 //see a cross-section
 //intersection() {
 //box();
