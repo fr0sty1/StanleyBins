@@ -11,7 +11,7 @@ depth=39; //constant for all sizes
 
 //"Small Bin" (internal dimensions)
 width=50.5; //x-axis
-height=35; //y-axis
+height=35.3; //y-axis
 
 //wallThickness (set to match your slicer settings)
 wall=.5; //.4 is typical
@@ -35,7 +35,7 @@ rows=1; //y axis (height)
 chamfer=1.5;
 
 //draft angle of the inside of the box (degrees) Adjust if insert doesn't sit snugly in bin
-draft=1.05;
+draft=.9;
 
 //shape of the bottom of the well (a sphere is scaled to these proportions. Largest effect will be seen by reducing zwell to flatten the bottom out
 xWell=.8;
