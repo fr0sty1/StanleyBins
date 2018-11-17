@@ -1,46 +1,77 @@
+//set maximum face size for general features
 $fs=2;
-//outside dimenstions
 
 //options for render:
-//0 = bin as described
-//1 = bulk as solid
-render = 1;
+//0 = Divided bin with rounded bottom
+//1 = bulk as solid. Used to test the fit. Print w/ 2 perimeters, 0% infill
+//2 = Divided bin with squared-off cavities
+//3 = Replacement bin + #0
+//4 = Replacement bin + #2
 
+render = 0;
+
+//Number of cavities (setting > 1 will create interior walls within the bin)
+cols=1; //x axis (width)
+rows=1; //y axis (height)
+
+//radius of the top corners of each cavity. This is only in effect when printed 'rounded bottom' models.
+inner_corner=1.75; 
+//radius of corner of 'squared off' dividers. Set to 0 for sharp cornered dividers
+divider_corner=0.0;
+
+//How far below the top of the bin the internal walls should stop;
+waterline=0;
+
+//shape of the bottom of the well when making "rounded bottom" models
+//a sphere is scaled to this proportion of the cavity's volume, offset by floor from the bottom, and "hull()ed" with circles of "inner_corner" radius at the top
+//That shape is intersection()ed with the internal cavity volume
+
+//starting point for fingerwells
+xWell=.8;
+yWell=.8;
+zWell=.65;
+
+//for 'single cavity'
+xWell=1.1;
+yWell=1.1;
+zWell=.65;
+
+//radius of the top corners of each cavity
+inner_corner=1.75; 
+
+//"wall" is the wall thickness chosen in your slicer
+wall=.5;
+
+//"shells" is how many walls/permeters to use
+inner_shells=2; //thickness of internal dividers (if any)
+outer_shells=0; //thickness of outside walls (if any)
+//outer_shells is very negative to make the "rounded bottom" bin. Set to something sensible later
+
+//"floor" defines depth of the floor
+floor=-2;
+
+
+//CHOOSE ONE SET OF WIDTH/HEIGHT values for the bin you are using
+//outside dimenstions
 depth=39; //constant for all sizes
-//using shorter height to clear registration tabs
 
 //"Small Bin" (internal dimensions)
 width=50.5; //x-axis
 height=35.3; //y-axis
 
-//wallThickness (set to match your slicer settings)
-wall=.5; //.4 is typical
+//"Medium Bin"
+//width=??; 
+//height=??; 
 
-//#of 'shells' or 'perimeters'
-inner_shells=2; //This multiplid by 'wall' is the total thickness of internal walls
-outer_shells=-25; //the width of outer walls
+//"Large Bin"
+//??
 
-//depth of the 'floor' (distance between the bottom of the well and the bottom of the model
-//setting this to a larger number makes a shallower well, a negative number leaves a hole in the bottom
-floor=-2;
+//DO NOT EDIT THE VALUES BELOW UNLESS TEST PRINTS DO NOT FIT IN YOUR BINS.
+//chamfer of outer edge of an insert
+chamfer=1.5; //This is chosen to match the radius of the stock bins so the inserts fit well
 
-//radius of 'interior' corners
-corner=1.75;
-
-//Number of cavities
-cols=1; //x axis (width)
-rows=1; //y axis (height)
-
-//chamfer of outer edges (radius of the corners)
-chamfer=1.5;
-
-//draft angle of the inside of the box (degrees) Adjust if insert doesn't sit snugly in bin
+//draft angle of the inside of the box (degrees) Adjust if bottom of bin does not fit correctly (too tight or too loose)
 draft=.9;
-
-//shape of the bottom of the well (a sphere is scaled to these proportions. Largest effect will be seen by reducing zwell to flatten the bottom out
-xWell=.8;
-yWell=.8;
-zWell=.65;
 
 //find the offset from top/bottom based on the draft angle.
 function draft_off(d=draft) = height/(1/tan(d));
@@ -113,14 +144,14 @@ module box() {
     difference() {
         bulk();
         cavities();
-        corners();
+        //corners();
     }
 }
 
 if(render == 0) {
     difference() {
         box();
-        cube([200,200,(depth-18)*2],center=true);
+        cube([200,200,waterline*2],center=true);
     }
 } else if (render == 1) {
     bulk();
