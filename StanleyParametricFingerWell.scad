@@ -124,11 +124,12 @@ module cavities() {
 module cavity() {
     hull() {
         for (x = [-1,1]) { for (y = [-1,1]) {
-            translate([(.5*(col_size-wall*inner_shells)-corner)*x,(.5*(row_size-wall*inner_shells)-corner)*y, 0]) {
-                translate([0,0,-.5]) linear_extrude(.6) circle(r=corner);
+            translate([(.5*(col_size-wall*inner_shells)-inner_corner)*x,(.5*(row_size-wall*inner_shells)-inner_corner)*y, 0]) {
+                translate([0,0,-.5]) linear_extrude(.6) circle(r=inner_corner,$fn=8);
         } } }
         sphere_size = col_size > row_size ? col_size : row_size;
         translate([0,0,-1*(depth-floor)+(depth-floor)*zWell*.5]) scale([col_size/sphere_size*xWell, row_size/sphere_size*yWell, (depth-floor)/sphere_size*zWell])sphere(d=sphere_size);
+
     }
 }
 
