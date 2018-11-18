@@ -14,13 +14,17 @@ render = 0;
 cols=1; //x axis (width)
 rows=1; //y axis (height)
 
-//radius of the top corners of each cavity. This is only in effect when printed 'rounded bottom' models.
+//radius of the top corners of each cavity. This is only in effect when printing 'rounded bottom' models.
 inner_corner=1.75; 
+
+//inner_offset (how far to adjust the center of the inner_corner in or out)
+inner_offset=4;
+
 //radius of corner of 'squared off' dividers. Set to 0 for sharp cornered dividers
 divider_corner=0.0;
 
 //How far below the top of the bin the internal walls should stop;
-waterline=0;
+waterline=19;
 
 //shape of the bottom of the well when making "rounded bottom" models
 //a sphere is scaled to this proportion of the cavity's volume, offset by floor from the bottom, and "hull()ed" with circles of "inner_corner" radius at the top
@@ -35,9 +39,6 @@ zWell=.65;
 xWell=1.1;
 yWell=1.1;
 zWell=.65;
-
-//radius of the top corners of each cavity
-inner_corner=1.75; 
 
 //"wall" is the wall thickness chosen in your slicer
 wall=.5;
@@ -124,7 +125,7 @@ module cavities() {
 module cavity() {
     hull() {
         for (x = [-1,1]) { for (y = [-1,1]) {
-            translate([(.5*(col_size-wall*inner_shells)-inner_corner)*x,(.5*(row_size-wall*inner_shells)-inner_corner)*y, 0]) {
+            translate([(.5*(col_size-wall*inner_shells)-inner_corner+inner_offset)*x,(.5*(row_size-wall*inner_shells)-inner_corner+inner_offset)*y, 0]) {
                 translate([0,0,-.5]) linear_extrude(.6) circle(r=inner_corner,$fn=8);
         } } }
         sphere_size = col_size > row_size ? col_size : row_size;
