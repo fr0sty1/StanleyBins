@@ -7,11 +7,10 @@ $fs=2;
 //2 = Divided bin with squared-off cavities
 //3 = Replacement bin + #0
 //4 = Replacement bin + #2
-
 render = 0;
 
 //Number of cavities (setting > 1 will create interior walls within the bin)
-cols=1; //x axis (width)
+cols=2; //x axis (width)
 rows=1; //y axis (height)
 
 //radius of the top corners of each cavity. This is only in effect when printing 'rounded bottom' models.
@@ -24,7 +23,7 @@ inner_offset=4;
 divider_corner=0.0;
 
 //How far below the top of the bin the internal walls should stop;
-waterline=19;
+waterline=0;
 
 //shape of the bottom of the well when making "rounded bottom" models
 //a sphere is scaled to this proportion of the cavity's volume, offset by floor from the bottom, and "hull()ed" with circles of "inner_corner" radius at the top
@@ -77,7 +76,7 @@ draft=.9;
 //find the offset from top/bottom based on the draft angle.
 function draft_off(d=draft) = height/(1/tan(d));
 
-//we will model the bulk centered around the origin, so calculate centerline of sphere used for outer 'hull()' operation
+//we will model the bulk centered around the origin, so calculate displacement of centerline of sphere used for outer 'hull()' operation
 xoff=.5*width-chamfer;
 yoff=.5*height-chamfer;
 
@@ -103,7 +102,7 @@ module bulk() {
 }
 
 //helper to do some math
-function min_max(n) = (n <= 1 ? 0 : (n-1) / 2);
+function min_max(n) = (n < 1 ? undef : ( n == 1 ? 0 : (n-1) / 2));
 
 //distance between centers of cavities (if more than 1)
 row_size = (height-wall*outer_shells)/rows + (min_max(rows) == 0 ? 1: min_max(rows))*wall*inner_shells; //y-axis
@@ -134,6 +133,29 @@ module cavity() {
     }
 }
 
+module internal_walls() {
+    row_minmax = min_max(rows-1);
+    col_minmax = min_max(cols-1);
+
+    if(col_minmax!=undef || row_minmax != undef)
+        intersection() {
+        bulk();
+        union() {
+            for (x = [col_minmax*-1:1:col_minmax]) {
+                translate([x*col_size,0,-.5*(depth+2)]) {
+                cube([wall*inner_shells,height+2, depth+2], center=true);
+                }
+            }
+            for( y = [row_minmax*-1:1:row_minmax]) {
+                translate([0,y*row_size,-.5*(depth+2)]) {
+                    cube([width+2,wall*inner_shells, depth+2], center=true);
+                }
+            }
+        }
+    }
+}
+
+//recesses to allow clearance for the lid retension points.
 module corners() {
     extra=4; //how far past the corner to center the spheres
     rad=18;
@@ -142,25 +164,33 @@ module corners() {
     translate([x*(xoff+extra),y*(yoff+extra),rad-excursion]) sphere(r=rad);
     }}
 }
-module box() {
-    difference() {
-        bulk();
-        cavities();
-        //corners();
+
+module inner_divider() {
+
+    union() {
+        internal_walls();
+        difference() {
+            bulk();
+            cavities();
+            //corners();
+        }
     }
 }
 
 if(render == 0) {
     difference() {
-        box();
+        inner_divider();
+        //waterline determines how far from the top of the bin to cut off the tops (useful for 1x1 bin liners so they don't taper too thinly).
         cube([200,200,waterline*2],center=true);
     }
 } else if (render == 1) {
     bulk();
+} else if  (render == 2) {
+    internal_walls();
 }
 //see a cross-section
 //intersection() {
-//box();
+//inner_divider();
 //translate([0,-.5*row_size,-100])cube([500,500,500]);
 //}
 
